@@ -1,59 +1,66 @@
-// not doing things in cool ways, just trying to get it done while understainding different parts of go
 package main
 
 import (
-  "fmt"
-  "bufio"
-  "os"
-  "sort"
+	"bufio"
+	"fmt"
+	"os"
+	"sort"
 )
 
 func main() {
-  // read file in ./input.txt
-  input, err :=  os.Open("./input.txt")
-  if err != nil {
-    fmt.Println(err)
-  }
-  defer input.Close()
+	// read file in ./input.txt
+	input, err := os.Open("./input.txt")
+	if err != nil {
+		fmt.Println(err)
+	}
+	defer input.Close()
 
+	scanner := bufio.NewScanner(input)
 
-  scanner := bufio.NewScanner(input)
+	var elves [][]int // outerlist
+	var elf []int     // innerlist
 
-  // create an empty array
-  var elves []int
-  
-  // make an array of all the numbers, empty lines are 0
-  for scanner.Scan() {
-    var elf int
-    fmt.Sscanf(scanner.Text(), "%d", &elf)
-    elves = append(elves, elf)
-  }
+	// scan and create nested list
+	for scanner.Scan() {
+		var foodCal int
+		fmt.Sscanf(scanner.Text(), "%d", &foodCal)
+		if foodCal == 0 {
+			elves = append(elves, elf)
+			elf = nil
+		}
+		elf = append(elf, foodCal)
+	}
 
-  if err := scanner.Err(); err != nil {
-    fmt.Println(err)
-  }
+	if err := scanner.Err(); err != nil {
+		fmt.Println(err)
+	}
 
-  // calculate the calories for each elf , we know 0 starts a new elf
-    
-  var everyElfCalories []int
-  var elfTotal int
+	var calsPerElf []int
+	for _, elf := range elves {
+		var totalElfCals int
+		for _, cal := range elf {
+			totalElfCals += cal
+		}
+		calsPerElf = append(calsPerElf, totalElfCals)
+	}
 
-  for i := 0; i < len(elves); i++ {
-    if elves[i] !=0 {
-      elfTotal += elves[i]
-    } else {
-      everyElfCalories = append(everyElfCalories, elfTotal)
-      elfTotal = 0
-    }
-  }
+	// sort the calsPerElf
+	// make a copy of the calsPerElf so that we have the original list
+	var sortedCalsPerElf = make([]int, len(calsPerElf))
+	copy(sortedCalsPerElf, calsPerElf) // copy the elements
+	// sort the calsPerElf
+	sort.Ints(sortedCalsPerElf)
 
-  // now we have an array of all the calories for each elf
-  // we need to sort it, where the greatest is first
-  var sortedCalories []int = sort.IntSlice(everyElfCalories)
+	var mostCals int = sortedCalsPerElf[len(sortedCalsPerElf)-1]
 
-  // get the elf number from everyElfCalories
-  var elfNumber int = sort.SearchInts(everyElfCalories, sortedCalories[0])
-  fmt.Println("most calories : %d", sortedCalories[0])
-  fmt.Println("elf number : %d", elfNumber)
-
+	// find the elf number
+	var elfNumber int
+	for i, cals := range calsPerElf {
+		if cals == mostCals {
+			elfNumber = i + 1 // arrays count from 0, we want to count from 1 thus adding 1
+			break
+		}
+	}
+	fmt.Printf("most calories: %d\n", mostCals)
+	fmt.Printf("elf number: %d\n", elfNumber)
 }
