@@ -1,8 +1,7 @@
-console.log("hello");
-const fs = require("fs");
+import fs from 'fs'
 
 const readFile = async () => {
-  return await fs.promises.readFile("./d1-2023.txt", "utf-8");
+  return await fs.promises.readFile("./d1-1.txt", "utf-8");
 };
 
 const main = async () => {
